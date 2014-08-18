@@ -695,10 +695,14 @@ table.reporttable td.cell_money { text-align: right; font-family: monospace; }
     
     groupsb=[list(map(stripp,x)) for x in groupsb]
     #print groupsb 
-        
-    rows = [{'Index': Index,
-             'Species': Species}
-            for Index, Species in enumerate(groupsb, start=1)]
+
+    rows = []
+    for index, species in enumerate(groupsb, start=1):
+        species_name = species[0]
+        rows.append({'Index': index,
+                     'Species': species_name,
+                     })
+    print "Made {num} rows".format(num=len(rows))
 
     invoicerow = RowSpec(ColumnSpec('Index', 'Index #'),
                          ColumnSpec('Species', 'Species Name'))
