@@ -685,7 +685,9 @@ table.reporttable td.cell_money { text-align: right; font-family: monospace; }
     # this section is removing them from the final list
     groupsb = list()
     for sublist in groups:
-        if sublist not in groupsb:
+        if not any(map(str.strip, sublist)):  # this detects blanks
+            continue  # it was blank, so skip it
+        if sublist not in groupsb:  # this detects duplicates
             groupsb.append(sublist)
     #print groupsb , len (groupsb)
     
