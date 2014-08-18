@@ -677,8 +677,8 @@ table.reporttable td.cell_money { text-align: right; font-family: monospace; }
     
     with open('Species_Dictionary.txt') as f:
         for key,group in itertools.groupby(f,isa_group_separator):
-           groups.append(list(group))
-           uniquekeys.append(key)
+            groups.append(list(group))
+            uniquekeys.append(key)
         #print groups , len(groups)
     
     # Since empty lines are appered as seperate lists in the groups lis,
