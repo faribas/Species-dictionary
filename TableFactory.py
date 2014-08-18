@@ -274,6 +274,8 @@ class TableBase(object):
         if value is None:
             return ''
         castfunction = self.castfunctions.get(type(value), unicode)
+        if hasattr(castfunction, 'htmlsafe'):
+            return castfunction(value)
         return cgi.escape(castfunction(value))
 
 
@@ -472,7 +474,7 @@ class SpreadsheetTable(TableBase):
                 colnum = 0
                 row = mainsheet.row(rownum)
                 for cell in subrow:
-                    row.write(colnum, cell.value, self._getstyle(cell))
+                    row.write(colnum, self._cast(cell), self._getstyle(cell))
                     colnum += cell.style.span
                 rownum += 1
 
@@ -707,17 +709,34 @@ table.reporttable td.cell_money { text-align: right; font-family: monospace; }
         rows.append({'Index': index,
                      'Species': species_name,
                      'SMILES': smiles,
+                     'Molecule': mol,
                      })
     print "Made {num} rows".format(num=len(rows))
 
     invoicerow = RowSpec(ColumnSpec('Index', 'Index #'),
                          ColumnSpec('Species', 'Species Name'),
                          ColumnSpec('SMILES', 'SMILES'),
+                         ColumnSpec('Molecule', 'Molecule'),
                          )
     lines = invoicerow.makeall(rows)
 
+    def image(mol):
+        from base64 import b64encode
+        src = mol._repr_png_()
+        encoded = b64encode(src)
+        return '<img alt="{name}" src="data:image/png;base64,{data}" />'.format(name=mol.toSMILES(), data=encoded)
+    image.htmlsafe = True
+    def blank(mol):
+        return ''
+
     for tableclass, extension in exampletypes:
         outfile = open('Species.%s' % extension, 'wb')
+
+        if tableclass is HTMLTable:
+            tableclass.castfunctions[Molecule] = image
+        else:
+            tableclass.castfunctions[Molecule] = blank
+
         if tableclass is HTMLTable:
             outfile.write(htmlheader)
         outfile.write(tableclass('Species dictionary',
