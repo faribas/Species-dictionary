@@ -668,6 +668,7 @@ table.reporttable td.cell_money { text-align: right; font-family: monospace; }
     import numpy as np
     import csv
     import itertools
+    from rmgpy.molecule import Molecule
 
     #reading text file of species
     groups= []
@@ -699,15 +700,20 @@ table.reporttable td.cell_money { text-align: right; font-family: monospace; }
     #print groupsb 
 
     rows = []
-    for index, species in enumerate(groupsb, start=1):
-        species_name = species[0]
+    for index, adjacency_list in enumerate(groupsb, start=1):
+        species_name = adjacency_list[0]
+        mol = Molecule().fromAdjacencyList('\n'.join(adjacency_list))
+        smiles = mol.toSMILES()
         rows.append({'Index': index,
                      'Species': species_name,
+                     'SMILES': smiles,
                      })
     print "Made {num} rows".format(num=len(rows))
 
     invoicerow = RowSpec(ColumnSpec('Index', 'Index #'),
-                         ColumnSpec('Species', 'Species Name'))
+                         ColumnSpec('Species', 'Species Name'),
+                         ColumnSpec('SMILES', 'SMILES'),
+                         )
     lines = invoicerow.makeall(rows)
 
     for tableclass, extension in exampletypes:
